@@ -13,16 +13,31 @@ import {
     Tr
 } from "@chakra-ui/react";
 
+import costs from "../utils/costs";
 import months from "../utils/months";
-import {SetStateAction, useState} from "react";
-import {days30} from "../utils/days";
 import DaySelect from "./DaySelect";
+import {SetStateAction, useState} from "react";
 
 const CostsTab = () => {
-    const [monthValue, setMonthValue] = useState(`${months[new Date().getMonth()]}`)
+    const [monthValue, setMonthValue] = useState(`${months[new Date().getMonth()].name}`)
+    const [monthMaxDays, setMonthMaxDays] = useState(months[new Date().getMonth()].days)
+    const [monthMinDays, setMonthMinDays] = useState(0)
 
-    const changeMonth = (event: { target: { value: SetStateAction<string>; }; }) => {
+    const changeMonth = (event: { target: { value: SetStateAction<string> } }) => {
         setMonthValue(event.target.value)
+        months.map((month: any) => {
+            if (month.name === event.target.value) {
+                setMonthMaxDays(month.days)
+            }
+        })
+    }
+
+    const changeMinDay = (event: { target: { value: SetStateAction<number> } }) => {
+        setMonthMinDays(event.target.value)
+    }
+
+    const changeMaxDay = (event: { target: { value: SetStateAction<number> } }) => {
+        setMonthMaxDays(event.target.value)
     }
 
     return (
@@ -53,7 +68,7 @@ const CostsTab = () => {
                     >
                         {months.map((month) => {
                             return(
-                                <option>{month}</option>
+                                <option>{month.name}</option>
                             )
                         })}
                     </Select>
@@ -67,9 +82,9 @@ const CostsTab = () => {
                         mt={2}
                     >
                         <Text>с</Text>
-                        <DaySelect array={days30} default={days30[0]} />
+                        <DaySelect index={monthMinDays} monthValue={monthValue} value={monthMinDays} onChange={changeMinDay} />
                         <Text>по</Text>
-                        <DaySelect array={days30} default={days30[29]} />
+                        <DaySelect index={monthMaxDays - 1} monthValue={monthValue} value={monthMaxDays} onChange={changeMaxDay} />
                     </Container>
                 </Container>
                 <Container
@@ -88,7 +103,6 @@ const CostsTab = () => {
                         <StatLabel>Траты за месяц</StatLabel>
                         <StatNumber>₽0.00</StatNumber>
                     </Stat>
-
                 </Container>
             </Box>
             <TableContainer>
@@ -101,12 +115,22 @@ const CostsTab = () => {
                             <Th isNumeric>Сумма</Th>
                         </Tr>
                     </Thead>
+                    {costs.map((cost) => {
+                        if (monthValue === months[cost.date.getMonth()].name) {
+                            if (cost.date.getDate() >= monthMinDays && cost.date.getDate() <= monthMaxDays) {
+                                console.log(costs)
+                            }
+                        }
+
+                    })}
                     <Heading
                         textAlign='left'
                         fontSize='xl'
                         color='#63b3ed'
                         p={3}
-                    >1 Сентября</Heading>
+                    >
+                        1221
+                    </Heading>
                     <Tbody>
                         <Tr>
                             <Td>Развлечения</Td>
@@ -132,13 +156,6 @@ const CostsTab = () => {
                             <Td isNumeric>35 000 ₽</Td>
                         </Tr>
                     </Tbody>
-                    {/*<Tfoot>*/}
-                    {/*    <Tr>*/}
-                    {/*        <Th>Категория</Th>*/}
-                    {/*        <Th>Название</Th>*/}
-                    {/*        <Th isNumeric>Сумма р.</Th>*/}
-                    {/*    </Tr>*/}
-                    {/*</Tfoot>*/}
                 </Table>
             </TableContainer>
         </Box>
